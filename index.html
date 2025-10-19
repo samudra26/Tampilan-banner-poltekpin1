@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Banner Slide - Poltekpin</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    .banner-container {
+      position: relative;
+      width: 100%;
+      height: 320px; /* Tinggi tetap seperti di idu.ac.id */
+      overflow: hidden;
+      background: #000;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      background-size: contain; /* Jangan potong gambar */
+      background-position: top left; /* Logo di kiri atas tetap terlihat */
+      background-repeat: no-repeat;
+      transition: opacity 0.8s ease-in-out;
+    }
+
+    .slide.active {
+      opacity: 1;
+      z-index: 1;
+    }
+
+    .slide-content {
+      position: absolute;
+      top: 40px;
+      left: 60px;
+      color: white;
+      max-width: 700px;
+      z-index: 2;
+    }
+
+    .slide-content h2 {
+      font-size: 2.6rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .slide-content p {
+      font-size: 1.15rem;
+      opacity: 0.95;
+      line-height: 1.5;
+    }
+
+    .controls {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 30px;
+      transform: translateY(-50%);
+      z-index: 10;
+    }
+
+    .arrow {
+      width: 48px; height: 48px;
+      border: 2px solid rgba(255,255,255,0.7);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 22px;
+      cursor: pointer;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .arrow:hover {
+      background: rgba(255,255,255,0.15);
+      border-color: white;
+    }
+
+    .indicators {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      z-index: 10;
+    }
+
+    .dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.6);
+      cursor: pointer;
+    }
+
+    .dot.active { background: white; }
+
+    @media (max-width: 768px) {
+      .banner-container { height: 420px; }
+      .slide-content { left: 20px; top: 20px; }
+      .slide-content h2 { font-size: 2rem; }
+      .slide-content p { font-size: 1rem; }
+      .arrow { width: 40px; height: 40px; font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="banner-container" id="banner">
+  <!-- Ganti URL ini dengan gambar asli Anda -->
+  <div class="slide active" style="background-image: url('/banner.jpg');">
+    <div class="slide-content">
+      <h2>POLITEKNIK PENGAYOMAN INDONESIA</h2>
+      <p>KEMENTERIAN HUKUM REPUBLIK INDONESIA | PROGRAM SARJANA TERAPAN (D-4)</p>
+    </div>
+  </div>
+  <div class="slide" style="background-image: url('/banner.jpg');">
+    <div class="slide-content">
+      <h2>JURUSAN HUKUM TERAPAN</h2>
+      <p>Prodi Administrasi Hukum Umum • Prodi Hukum Kekayaan Intelektual • Prodi Pembangunan Hukum • Prodi Perancang Peraturan Perundang-Undangan</p>
+    </div>
+  </div>
+  <div class="slide" style="background-image: url('/banner.jpg');">
+    <div class="slide-content">
+      <h2>JURUSAN KEIMIGRASIAN</h2>
+      <p>Prodi Administrasi Keimigrasian • Prodi Hukum Keimigrasian • Prodi Manajemen Teknologi Keimigrasian</p>
+    </div>
+  </div>
+  <div class="slide" style="background-image: url('/banner.jpg');">
+    <div class="slide-content">
+      <h2>JURUSAN ILMU PEMASYARAKATAN</h2>
+      <p>Prodi Bimbingan Kemasyarakatan • Prodi Manajemen Pemasyarakatan • Prodi Teknik Pemasyarakatan</p>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="arrow" id="prev">&#8249;</div>
+    <div class="arrow" id="next">&#8250;</div>
+  </div>
+
+  <div class="indicators">
+    <span class="dot active" data-index="0"></span>
+    <span class="dot" data-index="1"></span>
+    <span class="dot" data-index="2"></span>
+    <span class="dot" data-index="3"></span>
+  </div>
+</div>
+
+<script>
+  (function() {
+    var banner = document.getElementById('banner');
+    if (!banner) return;
+
+    var slides = banner.querySelectorAll('.slide');
+    var dots = banner.querySelectorAll('.dot');
+    var prevBtn = document.getElementById('prev');
+    var nextBtn = document.getElementById('next');
+
+    if (slides.length === 0) return;
+
+    var current = 0;
+    var total = slides.length;
+    var autoSlide;
+
+    function updateSlide(index) {
+      if (index < 0) index = total - 1;
+      if (index >= total) index = 0;
+
+      for (var i = 0; i < slides.length; i++) {
+        slides[i].classList.remove('active');
+        if (dots[i]) dots[i].classList.remove('active');
+      }
+
+      slides[index].classList.add('active');
+      if (dots[index]) dots[index].classList.add('active');
+
+      current = index;
+    }
+
+    function next() { updateSlide(current + 1); }
+    function prev() { updateSlide(current - 1); }
+
+    function startAuto() {
+      autoSlide = setInterval(next, 5000);
+    }
+
+    function stopAuto() {
+      if (autoSlide) clearInterval(autoSlide);
+    }
+
+    if (nextBtn) nextBtn.addEventListener('click', function() {
+      stopAuto();
+      next();
+      startAuto();
+    });
+
+    if (prevBtn) prevBtn.addEventListener('click', function() {
+      stopAuto();
+      prev();
+      startAuto();
+    });
+
+    for (var i = 0; i < dots.length; i++) {
+      dots[i].addEventListener('click', (function(idx) {
+        return function() {
+          stopAuto();
+          updateSlide(idx);
+          startAuto();
+        };
+      })(i));
+    }
+
+    if (banner) {
+      banner.addEventListener('mouseenter', stopAuto);
+      banner.addEventListener('mouseleave', startAuto);
+    }
+
+    startAuto();
+  })();
+</script>
+
+</body>
+</html>
